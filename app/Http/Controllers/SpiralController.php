@@ -18,13 +18,29 @@ class SpiralController extends Controller
      */
     public function index(Faker $faker)
     {
+        $randomIds = array();
         $randomBreakdowns = Random::select('breakdowns.id','breakdowns.values', 'breakdowns.random_id')
             ->where('randoms.flag', false)
             ->join('breakdowns', 'breakdowns.random_id', '=', 'randoms.id')
             ->orderBy('breakdowns.random_id', 'asc')
             ->get();
 
+        if(isset($randomBreakdowns)) {
+            foreach ($randomBreakdowns as $randomBreakdown) {
+                if(!in_array($randomBreakdown->random_id, $randomIds)) {
+                    array_push($randomIds, $randomBreakdown->random_id);
+                }
+            }
+        }
+
+        foreach ($randomIds as $randomId) {
+            $random = Random::find($randomId);
+            $random->flag = true;
+            $random->save();
+        }
+
         return response()->json([
+            'randomIds' => $randomIds,
             'randomBreakdowns' => $randomBreakdowns
         ]);
     }
@@ -34,18 +50,7 @@ class SpiralController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request, Faker $faker)
+    public function create(Faker $faker)
     {
         for ($randomItr=0; $randomItr < rand(5,10); $randomItr++) { 
             $name = $faker->word();
@@ -68,6 +73,17 @@ class SpiralController extends Controller
 
             }
         }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request, Faker $faker)
+    {
+        //
     }
 
     /**

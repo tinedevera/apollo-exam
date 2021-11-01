@@ -15,7 +15,8 @@ use App\Http\Controllers\SpiralController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
 });
 
 Route::get('/index', [SpiralController::class, 'index']);
+Route::get('/create', [SpiralController::class, 'create']);
